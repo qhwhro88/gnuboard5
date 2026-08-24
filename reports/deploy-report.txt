@@ -508,3 +508,37 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 1. Git push 远程（需配置自有 origin 或确认不 push）
 2. SSH 加固（需先配置密钥登录，再关闭密码登录）
 ============================================================
+
+============================================================
+[追加] SSH 安全加固完成
+============================================================
+时间: 2026-08-24T15:39:50Z UTC / 2026-08-24T23:39:50+0800 LOCAL
+
+[SSH 加固 - 全部完成]
+1. 密钥安装: /root/.ssh/authorized_keys (600 root)
+   - 类型: ed25519 (椭圆曲线，比 RSA 更短更安全)
+   - 公钥: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK4TnuohILPI9ijdYFq+A2AgGA9/JA3nFWCqDltfTIwS yiwupage-admin
+   - 用户已验证密钥登录成功
+
+2. sshd_config 修改:
+   - PermitRootLogin: yes → prohibit-password (仅允许密钥登录 root)
+   - PasswordAuthentication: yes → no (全局禁用密码登录)
+   - PubkeyAuthentication: yes (显式启用)
+   - MaxAuthTries: 3 (限制尝试次数)
+
+3. 备份:
+   - /etc/ssh/sshd_config.bak.pre-hardening.1787585913 (加固前完整备份)
+   - /etc/ssh/sshd_config.bak.1787584983 (公钥安装前备份)
+
+[影响]
+- 密码登录已完全禁用（无法用密码 SSH 登录）
+- 仅持有 ed25519 私钥的客户端可登录 root
+- 爆破攻击彻底无效
+
+[安全等级]
+- 原: PasswordAuthentication=yes + PermitRootLogin=yes → 弱密码爆破风险
+- 现: 仅 ed25519 密钥 + root 限制 → 达到生产安全基线
+
+[剩余待办 - 仅 1 项]
+1. Git push 远程（需配置自有 origin 或确认不 push）
+============================================================
