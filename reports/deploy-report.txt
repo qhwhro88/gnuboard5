@@ -550,8 +550,8 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 
 [变更内容]
 - g5_member (admin):
-  - mb_name: 최고관리자 → Yiwupage 최고관리자
-  - mb_nick: 최고관리자 → Yiwupage 최고관리자
+  - mb_name: 최고관리자 → 최고관리자
+  - mb_nick: 최고관리자 → 최고관리자
   - mb_nick_date: 同步更新为 CURDATE()
 - g5_config:
   - cf_admin_email_name: 이우페이지 → Yiwupage
