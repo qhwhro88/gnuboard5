@@ -377,3 +377,50 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 2. Git push 远程（需配置自有 origin）
 3. PHP 8.4 兼容性观察（被动监控，无需主动操作）
 ============================================================
+
+============================================================
+[追加] 深度生产验证 + 性能优化
+============================================================
+时间: 2026-08-24T15:07:33Z UTC / 2026-08-24T23:07:33+0800 LOCAL
+
+[核心功能验证 - 全部通过]
+- 首页: https://yiwupage.com/ → 200 (title: 이우페이지)
+- 登录: /bbs/login.php → 200 (title: 로그인 | 이우페이지)
+- 注册: /bbs/register.php → 200
+- 后台: /adm/ → 200
+- 商城: /shop/ → 200
+
+[性能验证]
+1. PHP OPcache
+   - 状态: ENABLED (FPM 模式)
+   - 内存: 12.05 MB / 128 MB
+   - Hits: 2104, Misses: 104
+   - 命中率: 95.3% (优秀)
+   - 说明: CLI 模式显示 disabled 是正常的，FPM 才是生产路径
+
+2. MariaDB 慢查询日志（新增启用）
+   - slow_query_log: ON
+   - long_query_time: 2 秒
+   - 日志路径: /var/log/mysql/slow.log (mysql:mysql 640)
+   - 持久化: /etc/mysql/mariadb.conf.d/50-server.cnf
+
+3. Redis
+   - 内存: 692.69 KB (极小)
+   - maxmemory: 0B (无限制，建议后续设上限)
+   - mem_fragmentation_ratio: 26.24 (低使用率时正常)
+
+[现有配置 - 已验证]
+- logrotate: nginx/php8.4-fpm/mariadb 已配置（系统自带）
+- MariaDB max_connections: 151 (默认，足够)
+- 当前日志大小: access.log 155K, error.log 5.3K (健康)
+
+[文件变更]
+- /etc/mysql/mariadb.conf.d/50-server.cnf (慢查询日志启用)
+- 备份: 50-server.cnf.bak.slowlog.*
+
+[生产部署完成度: 100%]
+所有自动化运维任务已完成。系统健康运行，性能指标良好。
+剩余仅 2 项需用户介入的操作：
+1. 管理员改密码（登录 https://yiwupage.com/adm/）
+2. Git push 远程（需配置自有 origin）
+============================================================
