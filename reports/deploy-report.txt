@@ -424,3 +424,71 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 1. 管理员改密码（登录 https://yiwupage.com/adm/）
 2. Git push 远程（需配置自有 origin）
 ============================================================
+
+============================================================
+[追加] 最终安全加固
+============================================================
+时间: 2026-08-24T15:13:44Z UTC / 2026-08-24T23:13:44+0800 LOCAL
+
+[安全审计发现 + 修复]
+1. PHP expose_php = On → Off
+   - 影响: 防止 PHP 版本通过 phpinfo() 泄露
+   - 验证: Web 测试 expose_php 返回空
+
+2. PHP disable_functions 空 → 禁用危险函数
+   - 禁用: exec, passthru, shell_exec, system, proc_open, popen, parse_ini_file, show_source
+   - 影响: 防止 webshell 执行系统命令
+   - 兼容性: Gnuboard 核心不使用这些函数（kcpcert/okname 插件可能受影响，但本站未启用本 人认证）
+
+3. Redis maxmemory 0 → 256MB
+   - maxmemory: 268435456 (256MB)
+   - maxmemory-policy: allkeys-lru (LRU 淘汰)
+   - 影响: 防止 Redis 无限增长导致 OOM
+   - 持久化: config rewrite 已写入 /etc/redis/redis.conf
+
+4. .git/config 权限 644 → 600
+   - 影响: 防止其他系统用户读取 git 配置
+
+[安全审计 - 已良好]
+- PHP x-powered-by: 不返回 (良好)
+- Nginx Server 头: 只显示 "nginx" (无版本)
+- 匿名 MySQL 用户: 无 (良好)
+- 空 MySQL 密码: 仅 mariadb.sys (系统账号, 正常)
+- test 数据库: 不存在 (良好)
+
+[SSH 安全建议 - 需用户决定]
+- 当前: PermitRootLogin=yes, PasswordAuthentication=yes
+- 风险: 弱密码爆破
+- 建议: 配置 SSH 密钥后改为 PasswordAuthentication=no, PermitRootLogin prohibit-password
+- 操作: 需用户配置 SSH 公钥后再加固，避免锁死远程登录
+
+[回归测试 - 全部通过]
+- 首页: 200, title "이우페이지"
+- /bbs/login.php: 200
+- /bbs/register.php: 200
+- /adm/: 200
+- /shop/: 200
+- /healthz: 200
+- 敏感路径: 全部 404
+- Redis: set/get/del 正常
+- MariaDB: g5_member 查询正常
+
+[文件变更]
+- /etc/php/8.4/fpm/php.ini (expose_php=Off, disable_functions)
+- 备份: php.ini.bak.1787584134
+- /home/www/.git/config (权限 600)
+- Redis 配置 (config rewrite 持久化)
+
+[最终生产状态]
+- 部署完成度: 100%
+- 安全加固完成
+- 性能优化完成
+- 监控日志完善
+- 备份策略就位
+- OOM 保护就位
+
+[剩余待办 - 仅需用户操作]
+1. 管理员改密码（登录 https://yiwupage.com/adm/）
+2. Git push 远程（需配置自有 origin）
+3. SSH 加固（需先配置密钥）
+============================================================
