@@ -29,3 +29,7 @@ initests01/
 SIRsoft000/
 config.php
 pma/
+
+# Yiwupage Prod Agent - 部署敏感文件（不提交）
+reports/deploy-credentials.txt
+config.php.bak.*

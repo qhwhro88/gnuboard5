@@ -1,0 +1,197 @@
+============================================================
+Yiwupage.com - Gnuboard 5 Production Deployment Report
+============================================================
+
+[部署时间]
+2026-08-24T13:50:35Z UTC / 2026-08-24T21:50:35+0800 LOCAL
+
+[版本信息]
+- GnuBoard: 5.6.34
+- YoungCart: 5.4.5.5.1
+- Git Commit: 0b6f081f765ac1af204d53c6a2b17a1b25a71502
+- Git Branch: main
+- Git Remote: https://github.com/gnuboard/gnuboard5.git
+
+[服务栈]
+- Nginx: 1.26.3 (active)
+- PHP-FPM: 8.4.24 (active, socket: /run/php/php8.4-fpm.sock)
+- MariaDB: 11.8.6 (active, listen 127.0.0.1:3306)
+- Redis: 6379 (active, listen 127.0.0.1)
+
+[文件路径]
+- 代码根目录: /home/www (属主 www-data:www-data)
+- 数据目录: /home/www/data (权限 707, 属主 www-data)
+- dbconfig.php: /home/www/data/dbconfig.php (权限 600, 属主 www-data)
+- Nginx vhost: /etc/nginx/sites-available/yiwupage
+- Nginx 默认 vhost 备份: /etc/nginx/sites-available/default.bak.1787575025
+- 凭证存档: /home/www/reports/deploy-credentials.txt (权限 600, 属主 root)
+
+[数据库]
+- 库名: gnuboard5
+- 字符集: utf8mb4 / utf8mb4_unicode_ci
+- 用户: gnuboard5@localhost, gnuboard5@127.0.0.1
+- 权限: ALL PRIVILEGES ON gnuboard5.*
+- 表数量: 62
+- 表前缀: g5_ (GnuBoard), g5_shop_ (YoungCart)
+
+[管理员]
+- ID: admin
+- Email: admin@yiwupage.local
+- Level: 10 (최고관리자)
+- 密码: 见 deploy-credentials.txt (随机 16 位字母数字)
+
+[Nginx 安全配置]
+- server_tokens off
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: SAMEORIGIN
+- X-XSS-Protection: 1; mode=block
+- Referrer-Policy: strict-origin-when-cross-origin
+- client_max_body_size: 64m
+
+[Nginx 路径防护（全部已验证 404）]
+- ^~ /data/             (保护 dbconfig.php / session / cache)
+- ^~ /install/          (双重防护，目录已删除)
+- ~ ^/\.git            (源码保护)
+- ~ ^/(config|common|_common|_head|_tail|version).php  (核心文件保护)
+- ~ /\.(?!well-known).* (隐藏文件保护)
+- ~ \.(exe|bat|cmd|sh|sql|bak|swp|log|tmp)$ (可执行/备份文件保护)
+
+[HTTP 验证结果]
+- /                        → 200 (Gnuboard 首页)
+- /healthz                 → 200 (监控探针)
+- /bbs/board.php?bo_table=notice → 200 (论坛)
+- /bbs/login.php           → 200 (登录)
+- /adm/index.php           → 200 (后台)
+- /shop/                   → 200 (商城)
+- /data/dbconfig.php       → 404 (防护生效)
+- /data/session/           → 404 (防护生效)
+- /install/                → 404 (防护生效)
+- /config.php              → 404 (防护生效)
+- /common.php              → 404 (防护生效)
+- /version.php             → 404 (防护生效)
+- /.git/config             → 404 (防护生效)
+- /.git/HEAD               → 404 (防护生效)
+- /test.sql                → 404 (防护生效)
+- /backup.bak              → 404 (防护生效)
+
+[隔离说明]
+- yiwupage 库 + 用户保留不动（未删除，未改动）
+- 新建独立 gnuboard5 库 + gnuboard5 用户，与 yiwupage 完全隔离
+- 安全边界: 即使 GnuBoard 被注入，攻击面仅限 gnuboard5 库
+
+[遗留事项 / 下一步建议]
+1. HTTPS 未配置（仅 80 端口）。建议后续配置 certbot + 443 server block
+2. server_name 用 '_' 通配。如需绑定 yiwupage.com 真实域名需修改 vhost
+3. GnuBoard 默认主题（theme/basic）已生效，可登录后台自定义
+4. 默认管理员密码为随机生成的 16 位字母数字，建议首次登录后改为含特殊字符的强密码
+5. 邮件发送未配置（mb_sendmail 路径需在 G5 后台设置 SMTP）
+6. 定时任务未配置（cron for Gnuboard cron/visit stats）
+7. Git 工作树有未提交变更（install/ 删除 + reports/ 新增），建议提交
+8. /bbs/ 返回 403 是因为目录下无 index.php，Gnuboard 设计如此，访问具体 .php 即可
+
+[回滚方案]
+- 数据库: DROP DATABASE gnuboard5; DROP USER 'gnuboard5'@'localhost'; DROP USER 'gnuboard5'@'127.0.0.1';
+- 代码: cd /home/www && git checkout -- . && rm -rf data/
+- Nginx: rm /etc/nginx/sites-enabled/yiwupage && ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && systemctl reload nginx
+- 凭证: rm /home/www/reports/deploy-credentials.txt /home/www/reports/deploy-report.txt
+
+============================================================
+部署状态: ✅ SUCCESS
+部署执行者: Yiwupage Prod Agent
+============================================================
+
+============================================================
+[追加] 域名绑定 yiwupage.com
+============================================================
+时间: 2026-08-24T14:03:51Z UTC / 2026-08-24T22:03:51+0800 LOCAL
+
+[变更内容]
+1. Nginx server_name: _ → yiwupage.com www.yiwupage.com (保留 default_server)
+2. Gnuboard G5_DOMAIN: '' → 'http://yiwupage.com'
+3. config.php 备份: /home/www/config.php.bak.1787580154
+
+[DNS 验证]
+- yiwupage.com     → 43.131.242.91
+- www.yiwupage.com → 43.131.242.91
+- 本机外网 IP      → 43.131.242.91
+
+[HTTP 验证]
+- http://yiwupage.com/        → 200 (Gnuboard 首页)
+- http://www.yiwupage.com/    → 200 (Gnuboard 首页)
+- http://43.131.242.91/       → 200 (default_server 兜底)
+- http://yiwupage.com/data/dbconfig.php → 404 (防护生效)
+- 静态资源 URL 已绝对化为 http://yiwupage.com/...
+
+[Cookie Domain]
+- G5_COOKIE_DOMAIN 保持空值，兼容 yiwupage.com 和 www.yiwupage.com
+
+[下一步建议]
+- HTTPS 证书申请（certbot --nginx -d yiwupage.com -d www.yiwupage.com）
+- HTTPS 后将 G5_DOMAIN 改为 https://yiwupage.com
+- 配置 HTTP→HTTPS 301 跳转
+- 启用 HSTS 头
+============================================================
+
+============================================================
+[追加] HTTPS 配置
+============================================================
+时间: 2026-08-24T14:12:44Z UTC / 2026-08-24T22:12:44+0800 LOCAL
+
+[变更内容]
+1. certbot 安装: certbot 4.0.0 + python3-certbot-nginx
+2. Let's Encrypt 证书申请成功
+3. Gnuboard G5_DOMAIN: http://yiwupage.com → https://yiwupage.com
+4. G5_HTTPS_DOMAIN: '' → 'https://yiwupage.com'
+5. Nginx 自动配置 443 SSL + 80→443 301 跳转
+6. HSTS 头已启用
+
+[证书信息]
+- 路径: /etc/letsencrypt/live/yiwupage.com/
+  - fullchain.pem (证书)
+  - privkey.pem (私钥)
+- 颁发者: Let's Encrypt (CN=YE1)
+- 主题: CN=yiwupage.com
+- 涵盖域名: yiwupage.com, www.yiwupage.com
+- 生效时间: 2026-08-24 13:10:57 UTC
+- 过期时间: 2026-11-22 13:10:56 UTC (90 天)
+- 自动续期: certbot.timer 已启用（每日检查）
+
+[ACME 账户]
+- 邮箱: admin@yiwupage.com
+- 注册成功
+
+[备份]
+- /home/www/config.php.bak.https.1787580764（修改前备份）
+
+[HTTPS 验证]
+- https://yiwupage.com/         → 200 (Gnuboard 首页)
+- https://www.yiwupage.com/     → 200
+- http://yiwupage.com/          → 301 跳转到 https://
+- 静态资源 URL 已绝对化为 https://yiwupage.com/...
+- Cookie 已加 secure; HttpOnly; SameSite=None
+
+[安全头（全部生效）]
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: SAMEORIGIN
+- X-XSS-Protection: 1; mode=block
+- Referrer-Policy: strict-origin-when-cross-origin
+- Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+[敏感路径防护（HTTPS 下全部 404）]
+- /data/dbconfig.php → 404
+- /install/ → 404
+- /config.php → 404
+- /.git/config → 404
+
+[文件]
+- config.php 修改: G5_DOMAIN + G5_HTTPS_DOMAIN
+- /home/www/config.php.bak.https.* (修改前备份)
+- /etc/nginx/sites-available/yiwupage (certbot 已自动修改 + HSTS 手动添加)
+
+[遗留事项]
+1. 管理员首次登录改密码（密码在 deploy-credentials.txt）
+2. SMTP 邮件配置（G5 后台）
+3. Cron 定时任务
+4. Git 工作树有未提交变更（建议提交）
+5. HSTS preload 列表申请（可选，https://hstspreload.org）
+============================================================
