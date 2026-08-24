@@ -33,3 +33,8 @@ pma/
 # Yiwupage Prod Agent - 部署敏感文件（不提交）
 reports/deploy-credentials.txt
 config.php.bak.*
+
+# Yiwupage Prod Agent - 运维文件（不提交）
+scripts/
+logs/
+backups/
