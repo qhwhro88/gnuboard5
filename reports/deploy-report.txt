@@ -567,3 +567,76 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 - 已清理 data/cache/ 中 member 相关缓存
 - 下次访问将读取最新数据
 ============================================================
+
+============================================================
+[追加] UI 本地化 + 商城禁用
+============================================================
+时间: 2026-08-24T16:00:51Z UTC / 2026-08-25T00:00:51+0800 LOCAL
+
+[本地化变更 - UI 标签英文化]
+1. 站点标题 (g5_config.cf_title)
+   - 이우페이지 → Yiwupage
+   - 验证: <title>Yiwupage</title>
+
+2. 内容页 (g5_content)
+   - company: 회사소개 → About Us (内容保留韩语占位)
+   - privacy: 개인정보 처리방침 → Privacy Policy (内容保留韩语占位)
+   - provision: 서비스 이용약관 → Terms of Service (内容保留韩语占位)
+
+3. 论坛版块 (g5_board)
+   - free: 자유게시판 → Free Board
+   - gallery: 갤러리 → Gallery
+   - notice: 공지사항 → Notice
+   - qa: 질문답변 → Q&A
+
+4. 论坛分组 (g5_group)
+   - community: 커뮤니티 → Community
+
+5. FAQ (g5_faq_master)
+   - fm_subject: 자주하시는 질문 → FAQ
+
+[商城禁用]
+1. 商城配置清空 (g5_shop_default)
+   - de_admin_company_name: 회사명 → ''
+   - de_admin_company_saupja_no: 123-45-67890 → ''
+   - de_admin_company_tel: 02-123-4567 → ''
+   - de_admin_info_name: 정보책임자명 → ''
+   - de_admin_info_email: 정보책임자 E-mail → ''
+
+2. Nginx /shop/ 路径禁用
+   - 添加: location ^~ /shop/ { add_header X-Robots-Tag "noindex, nofollow" always; return 404; }
+   - 验证:
+     * /shop/ → 404 + X-Robots-Tag: noindex, nofollow
+     * /shop/item.php → 404
+     * /shop/index.php → 404
+
+3. robots.txt 配置
+   - Disallow: /shop/
+   - Disallow: /adm/
+   - Disallow: /data/
+   - Disallow: /install/
+   - Disallow: /bbs/login.php, register.php, member_confirm.php, password_lost.php, formmail.php
+
+[缓存清理]
+- /home/www/data/cache/* 已清空
+- 下次访问读取最新 DB 数据
+
+[回归测试 - 全部通过]
+- / → 200 (title: Yiwupage)
+- /healthz → 200
+- /bbs/login.php → 200
+- /adm/ → 200
+- /bbs/board.php?bo_table=notice → 200
+- /shop/ → 404 (禁用生效)
+- /shop/item.php → 404
+- /robots.txt → 200
+
+[策略说明]
+- UI 标签: 英文化（国际化标准）
+- 内容占位: 保留韩语（用户后续填入韩语实际内容）
+- 商城: 不删除文件/表（保持系统完整性），通过 nginx + DB 双重禁用
+- 未来启用: 删除 nginx /shop/ location + 恢复 DB 配置即可
+
+[文件变更]
+- /etc/nginx/sites-available/yiwupage (添加 /shop/ deny)
+- /home/www/robots.txt (新建，644 www-data)

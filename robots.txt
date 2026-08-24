@@ -1,0 +1,23 @@
+# Yiwupage.com robots.txt
+# Managed by Yiwupage Prod Agent
+
+# 允许所有搜索引擎抓取
+User-agent: *
+
+# 禁止抓取商城（已禁用）
+Disallow: /shop/
+
+# 禁止抓取后台
+Disallow: /adm/
+
+# 禁止抓取敏感目录
+Disallow: /data/
+Disallow: /install/
+Disallow: /bbs/login.php
+Disallow: /bbs/register.php
+Disallow: /bbs/member_confirm.php
+Disallow: /bbs/password_lost.php
+Disallow: /bbs/formmail.php
+
+# 站点地图（如后续生成）
+# Sitemap: https://yiwupage.com/sitemap.xml
