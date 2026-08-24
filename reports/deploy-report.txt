@@ -554,7 +554,7 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
   - mb_nick: 최고관리자 → 최고관리자
   - mb_nick_date: 同步更新为 CURDATE()
 - g5_config:
-  - cf_admin_email_name: 이우페이지 → Yiwupage
+  - cf_admin_email_name: Yiwupage → 이우페이지
   - 影响: 系统发信人名称统一为 Yiwupage
 
 [其它字段 - 未变]
