@@ -8,14 +8,14 @@ add_stylesheet('<link rel="stylesheet" href="'.$member_skin_url.'/style.css">', 
 <div id="mb_login" class="mbskin">
     <h1><?php echo $g5['title'] ?></h1>
 
-    <form name="flogin" action="<?php echo $login_action_url ?>" onsubmit="return flogin_submit(this);" method="post" id="flogin">
+    <form name="flogin" action="<?php echo $login_action_url ?>" onsubmit="return flogin_submit(this);" method="post" id="flogin" autocomplete="off">
     <input type="hidden" name="url" value="<?php echo $login_url ?>">
 
     <div id="login_frm">
         <label for="login_id" class="sound_only">아이디<strong class="sound_only"> 필수</strong></label>
-        <input type="text" name="mb_id" id="login_id" placeholder="아이디" required class="frm_input required" maxLength="20">
+        <input type="text" autocomplete="off" name="mb_id" id="login_id" placeholder="아이디" required class="frm_input required" maxLength="20">
         <label for="login_pw" class="sound_only">비밀번호<strong class="sound_only"> 필수</strong></label>
-        <input type="password" name="mb_password" id="login_pw" placeholder="비밀번호" required class="frm_input required" maxLength="20">
+        <input type="password" autocomplete="new-password" name="mb_password" id="login_pw" placeholder="비밀번호" required class="frm_input required" maxLength="20">
         
         <div id="login_info" class="chk_box">
             <input type="checkbox" name="auto_login" id="login_auto_login" class="selec_chk">

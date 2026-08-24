@@ -640,3 +640,48 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 [文件变更]
 - /etc/nginx/sites-available/yiwupage (添加 /shop/ deny)
 - /home/www/robots.txt (新建，644 www-data)
+
+============================================================
+[追加] 登录表单浏览器自动填充禁用
+============================================================
+时间: 2026-08-24T16:32:32Z UTC / 2026-08-25T00:32:32+0800 LOCAL
+
+[问题]
+用户浏览器打开登录页时，用户名/密码框自动填充已保存的
+admin 账号和密码（浏览器"记住密码"功能）。
+
+[根因]
+不是服务器端预填 value（表单 PHP 中 mb_id/mb_password input
+没有 value 属性），而是浏览器保存 yiwupage.com 的登录凭证
+后，在打开登录页时自动写入。
+
+[解决 - 代码层]
+对 Gnuboard 4 处 login skin 全部注入 autocomplete 属性：
+  1) <form name="flogin"> 加 autocomplete="off"
+  2) <input name="mb_id"> 加 autocomplete="off"
+  3) <input name="mb_password"> 加 autocomplete="new-password"
+
+[修改的文件（4 个皮肤副本）]
+  - /home/www/skin/member/basic/login.skin.php        (核心 PC 默认，实际生效)
+  - /home/www/theme/basic/skin/member/basic/login.skin.php (主题 PC)
+  - /home/www/mobile/skin/member/basic/login.skin.php      (核心 Mobile 默认)
+  - /home/www/theme/basic/mobile/skin/member/basic/login.skin.php (主题 Mobile)
+
+[线上验证]
+  - PC: form 带 autocomplete="off"，mb_id 带 autocomplete="off"，
+    mb_password 带 autocomplete="new-password"
+  - Mobile: 同上
+  - g5_config.cf_member_skin = basic → 指向核心默认 skin
+    （非 theme 目录，最初改错目录导致线上没生效）
+
+[提醒 - 用户端仍需操作]
+代码层面只是"提示"浏览器不要自动填充。已保存的凭证仍需
+用户手动在浏览器密码管理器中删除一次：
+  - Chrome: 设置 → 密码管理器 → 搜索 yiwupage.com → 删除
+  - Safari: 设置 → 密码 → 移除
+  - 删除后，autocomplete 属性会阻止浏览器再次自动写入
+
+[回滚路径]
+所有文件修改前均备份为 *.bak.20260825：
+  cp <file>.bak.20260825 <file>
+============================================================
