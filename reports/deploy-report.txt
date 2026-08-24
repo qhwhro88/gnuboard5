@@ -542,3 +542,28 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 [剩余待办 - 仅 1 项]
 1. Git push 远程（需配置自有 origin 或确认不 push）
 ============================================================
+
+============================================================
+[追加] 管理员账号名称配置
+============================================================
+时间: 2026-08-24T15:49:18Z UTC / 2026-08-24T23:49:18+0800 LOCAL
+
+[变更内容]
+- g5_member (admin):
+  - mb_name: 최고관리자 → Yiwupage 최고관리자
+  - mb_nick: 최고관리자 → Yiwupage 최고관리자
+  - mb_nick_date: 同步更新为 CURDATE()
+- g5_config:
+  - cf_admin_email_name: 이우페이지 → Yiwupage
+  - 影响: 系统发信人名称统一为 Yiwupage
+
+[其它字段 - 未变]
+- mb_id: admin
+- mb_email: admin@yiwupage.com
+- mb_level: 10 (최고관리자)
+- cf_admin: admin
+
+[缓存清理]
+- 已清理 data/cache/ 中 member 相关缓存
+- 下次访问将读取最新数据
+============================================================
