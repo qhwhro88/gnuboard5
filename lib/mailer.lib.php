@@ -31,6 +31,14 @@ function mailer($fname, $fmail, $to, $subject, $content, $type=0, $file="", $cc=
             $mail->Host = G5_SMTP; // SMTP server
             if(defined('G5_SMTP_PORT') && G5_SMTP_PORT)
                 $mail->Port = G5_SMTP_PORT;
+            // SMTP 认证（腾讯企业邮/Gmail 等需要）
+            if (defined('G5_SMTP_USER') && G5_SMTP_USER) {
+                $mail->SMTPAuth = true;
+                $mail->Username = G5_SMTP_USER;
+                $mail->Password = G5_SMTP_PASS;
+                if (defined('G5_SMTP_SECURE') && G5_SMTP_SECURE)
+                    $mail->SMTPSecure = G5_SMTP_SECURE;
+            }
         }
         $mail->CharSet = 'UTF-8';
         $mail->From = $fmail;

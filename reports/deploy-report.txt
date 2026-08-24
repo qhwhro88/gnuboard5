@@ -195,3 +195,100 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 4. Git 工作树有未提交变更（建议提交）
 5. HSTS preload 列表申请（可选，https://hstspreload.org）
 ============================================================
+
+============================================================
+[追加] Git 提交 + Cron 任务配置
+============================================================
+时间: 2026-08-24T14:20:45Z UTC / 2026-08-24T22:20:45+0800 LOCAL
+
+[Git 提交]
+- Commit 1: 8c8135f "deploy: Gnuboard 5.6.34 production deployment"
+  - 配置 G5_DOMAIN + G5_HTTPS_DOMAIN
+  - 删除 install/ 目录
+  - 添加 .gitignore 规则
+  - 添加 reports/deploy-report.txt
+
+- Commit 2: fa2c30d "chore: gitignore for ops files"
+  - 忽略 scripts/ (备份/清理脚本)
+  - 忽略 logs/ (cron 日志)
+  - 忽略 backups/ (DB 备份文件)
+
+[凭证保护]
+- /home/www/reports/deploy-credentials.txt (600 root, .gitignore 排除)
+- /home/www/config.php.bak.* (.gitignore 排除)
+
+[Cron 任务]
+1. DB 每日备份 (03:00)
+   - 脚本: /home/www/scripts/backup-db.sh (700 root)
+   - 备份目录: /home/www/backups/db/
+   - 保留期: 14 天
+   - 日志: /home/www/logs/cron-backup.log
+   - 测试备份: gnuboard5-20260824-221733.sql.gz (15419 bytes)
+
+2. Session/Cache 清理 (04:00)
+   - 脚本: /home/www/scripts/cleanup-data.sh (700 root)
+   - 清理: 7天前 session, 30天前 cache, 1天前 tmp
+   - 日志: /home/www/logs/cron-cleanup.log
+
+3. Let's Encrypt 自动续期
+   - systemd timer: certbot.timer (每日检查)
+   - 证书过期: 2026-11-22
+
+[文件清单]
+- /home/www/scripts/backup-db.sh       (700 root) - DB 备份脚本
+- /home/www/scripts/cleanup-data.sh    (700 root) - 清理脚本
+- /home/www/logs/                      (755 root) - cron 日志目录
+- /home/www/backups/db/                (755 root) - DB 备份目录
+
+[遗留事项]
+1. 管理员首次登录改密码（密码在 deploy-credentials.txt）
+2. SMTP 邮件配置（G5 后台，需用户提供 SMTP 服务器信息）
+3. 仓库未 push 到远程（remote 仍是 gnuboard 上游，未配置自有 origin）
+============================================================
+
+============================================================
+[追加] SMTP 邮件服务配置
+============================================================
+时间: 2026-08-24T14:35:03Z UTC / 2026-08-24T22:35:03+0800 LOCAL
+
+[变更内容]
+1. config.php: SMTP 配置改为腾讯企业邮
+   - G5_SMTP: 127.0.0.1 → smtp.exmail.qq.com
+   - G5_SMTP_PORT: 25 → 465
+   - 新增: G5_SMTP_USER / G5_SMTP_PASS / G5_SMTP_SECURE
+2. lib/mailer.lib.php: 加入 SMTP 认证支持（SMTPAuth + Username + Password + SMTPSecure）
+3. g5_config: cf_admin_email 改为 admin@yiwupage.com
+4. cf_admin_email_name 改为 Yiwupage
+
+[SMTP 配置]
+- 主机: smtp.exmail.qq.com
+- 端口: 465 (SSL)
+- 用户名: admin@yiwupage.com
+- 加密: SSL
+- 授权码: 见 deploy-credentials.txt
+
+[代码修改 - lib/mailer.lib.php]
+- 在 IsSMTP 块加入 SMTPAuth=true, Username, Password, SMTPSecure
+- 兼容性: 如未定义 G5_SMTP_USER，保持原行为（向后兼容）
+- 风险: Gnuboard 升级时此文件可能被覆盖，需重新打 patch
+
+[测试结果]
+1. PHPMailer 直接调用 → SEND OK
+   - 服务器响应: 250 Ok: queued as
+2. Gnuboard mailer() 函数 → MAILER OK
+   - 完整 Gnuboard 邮件链路验证通过
+
+[测试脚本]
+- /home/www/scripts/test-smtp.php (700 root) - SMTP 测试脚本
+- 用法: sudo -u www-data php /home/www/scripts/test-smtp.php
+
+[管理员邮箱]
+- cf_admin_email: admin@yiwupage.com
+- cf_admin_email_name: Yiwupage
+- 系统通知邮件将发送至此邮箱
+
+[遗留事项]
+1. 检查 admin@yiwupage.com 收件箱（可能进垃圾箱）
+2. 管理员首次登录改密码
+3. Git push 到远程（如需）
+============================================================
