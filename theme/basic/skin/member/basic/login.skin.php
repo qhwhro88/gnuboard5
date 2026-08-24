@@ -13,15 +13,15 @@ add_stylesheet('<link rel="stylesheet" href="'.$member_skin_url.'/style.css">', 
             <h2><span class="sound_only">회원</span>로그인</h2>
             <a href="<?php echo G5_BBS_URL ?>/register.php" class="join">회원가입</a>
         </div>
-        <form name="flogin" action="<?php echo $login_action_url ?>" onsubmit="return flogin_submit(this);" method="post">
+        <form name="flogin" action="<?php echo $login_action_url ?>" onsubmit="return flogin_submit(this);" method="post" autocomplete="off">
         <input type="hidden" name="url" value="<?php echo $login_url ?>">
         
         <fieldset id="login_fs">
             <legend>회원로그인</legend>
             <label for="login_id" class="sound_only">회원아이디<strong class="sound_only"> 필수</strong></label>
-            <input type="text" name="mb_id" id="login_id" required class="frm_input required" size="20" maxLength="20" placeholder="아이디">
+            <input autocomplete="off" type="text" name="mb_id" id="login_id" required class="frm_input required" size="20" maxLength="20" placeholder="아이디">
             <label for="login_pw" class="sound_only">비밀번호<strong class="sound_only"> 필수</strong></label>
-            <input type="password" name="mb_password" id="login_pw" required class="frm_input required" size="20" maxLength="20" placeholder="비밀번호">
+            <input autocomplete="new-password" type="password" name="mb_password" id="login_pw" required class="frm_input required" size="20" maxLength="20" placeholder="비밀번호">
             <button type="submit" class="btn_submit">로그인</button>
             
             <div id="login_info">
