@@ -342,3 +342,38 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 3. 管理员首次登录改密码
 4. Git push 远程（需配置自有 origin）
 ============================================================
+
+============================================================
+[追加] Swap 配置 + 内核参数优化
+============================================================
+时间: 2026-08-24T15:02:11Z UTC / 2026-08-24T23:02:11+0800 LOCAL
+
+[变更内容]
+1. 创建 2G swap 文件
+   - 路径: /swapfile (权限 600)
+   - 大小: 2 GiB
+   - UUID: f19a2ab8-6c1f-4bb4-bdac-daf8108fadc8
+
+2. 持久化挂载
+   - /etc/fstab: /swapfile none swap sw 0 0
+   - 重启后自动启用
+
+3. 内核参数优化 (/etc/sysctl.d/99-swap.conf)
+   - vm.swappiness = 10 (生产推荐，仅在内存紧张时用 swap)
+   - vm.vfs_cache_pressure = 50 (适度回收 cache)
+
+[最终内存状态]
+- 物理内存: 3.6Gi total, 1.9Gi used, 1.8Gi available
+- Swap: 2.0Gi total, 0B used (swappiness=10 时优先用物理内存)
+- 总可用: 3.8Gi (1.8G 物理 + 2.0G swap)
+
+[OOOM 保护]
+- 原: 3.6G 物理内存，无 swap，高负载时易 OOM
+- 现: 3.6G 物理 + 2G swap，OOM 风险大幅降低
+- swappiness=10 确保 swap 仅在必要时使用，避免性能下降
+
+[遗留事项 - 仅剩需用户操作的项]
+1. 管理员首次登录改密码（密码在 deploy-credentials.txt）
+2. Git push 远程（需配置自有 origin）
+3. PHP 8.4 兼容性观察（被动监控，无需主动操作）
+============================================================
