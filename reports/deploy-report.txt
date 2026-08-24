@@ -292,3 +292,53 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 2. 管理员首次登录改密码
 3. Git push 到远程（如需）
 ============================================================
+
+============================================================
+[追加] 生产审计 + 优化
+============================================================
+时间: 2026-08-24T14:55:39Z UTC / 2026-08-24T22:55:39+0800 LOCAL
+
+[审计发现 + 修复]
+1. /bbs/ 403 Forbidden (暴露目录结构)
+   - 原因: try_files $uri/ 在目录无 index.php 时返回 403
+   - 修复: 移除 $uri/，改为 try_files $uri /index.php?$query_string;
+   - 结果: /bbs/ 现返回 302 (Gnuboard index.php 处理重定向)
+
+2. MariaDB 无错误日志
+   - 原因: log_error 配置被注释
+   - 修复: 启用 log_error = /var/log/mysql/error.log
+   - 创建目录: /var/log/mysql (mysql:mysql)
+   - 重启: MariaDB active
+
+3. PHP-FPM 未启用慢日志
+   - 原因: catch_workers_output + request_slowlog_timeout 被注释
+   - 修复: 
+     * catch_workers_output = yes (捕获 worker 输出)
+     * request_slowlog_timeout = 10 (10秒以上记录)
+     * slowlog = /var/log/php8.4-fpm.slow.log
+   - 重启: PHP-FPM active
+
+[审计结果 - 系统健康]
+- 服务: nginx/php-fpm/mariadb/redis 全部 active
+- 负载: 0.62, 0.31, 0.26 (正常)
+- 内存: 1.9Gi used / 3.6Gi total (1.8Gi available)
+- 磁盘: 4.4G / 59G (8% used)
+- HTTPS: 证书有效 (2026-11-22 到期)
+
+[访问统计]
+- 外网访问: 117.149.92.146 (39次, 中国IP), 158.69.117.45 (29次)
+- HTTP 状态: 154×200, 20×301, 17×404, 4×302
+- 异常: 无 5xx 错误
+
+[文件变更]
+- /etc/nginx/sites-available/yiwupage (try_files 优化)
+- /etc/php/8.4/fpm/pool.d/www.conf (慢日志启用)
+- /etc/mysql/mariadb.conf.d/50-server.cnf (错误日志启用)
+- 备份: *.bak.1787582706 (各配置文件)
+
+[遗留事项 - 未处理]
+1. Swap 未配置 (内存 3.6G，无 swap，高负载时可能 OOM)
+2. PHP 版本 8.4 (Gnuboard 5.6.34 官方推荐 7.x，需关注兼容性)
+3. 管理员首次登录改密码
+4. Git push 远程（需配置自有 origin）
+============================================================
