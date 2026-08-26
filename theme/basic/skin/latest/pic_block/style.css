@@ -34,3 +34,8 @@
 .pic_lt .lt_cmt {background:#e9eff5;color:#3a8afd;font-size:11px;height:16px;line-height:16px;padding:0 5px;border-radius:3px;vertical-align:middle}
 .pic_lt .lt_more {position:absolute;top:11px;right:0;display:block;width:40px;line-height:25px;color:#3a8afd;border-radius:3px;text-align:center}
 .pic_lt .lt_more:hover {color:#777}
+
+/* 좁은 화면: 음수 마진 제거 (가로 스크롤 방지) */
+@media (max-width: 800px) {
+    .pic_lt ul { margin: 0; }
+}
