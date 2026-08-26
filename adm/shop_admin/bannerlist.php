@@ -93,10 +93,11 @@ $from_record = ($page - 1) * $rows; // 시작 열을 구함
         <th scope="col" id="th_end">종료일시</th>
         <th scope="col" id="th_odr">출력순서</th>
         <th scope="col" id="th_hit">조회</th>
+        <th scope="col" id="th_price">고정가격</th>
         <th scope="col" id="th_mng">관리</th>
     </tr>
     <tr>
-        <th scope="col" colspan="7" id="th_img">이미지</th>
+        <th scope="col" colspan="8" id="th_img">이미지</th>
     </tr>
     </thead>
     <tbody>
@@ -150,13 +151,14 @@ $from_record = ($page - 1) * $rows; // 시작 열을 구함
         <td headers="th_end" class="td_datetime"><?php echo $bn_end_time; ?></td>
         <td headers="th_odr" class="td_num"><?php echo $row['bn_order']; ?></td>
         <td headers="th_hit" class="td_num"><?php echo $row['bn_hit']; ?></td>
+        <td headers="th_price" class="td_num"><?php echo number_format($row['bn_price']); ?>원</td>
         <td headers="th_mng" class="td_mng td_mns_m">
             <a href="./bannerform.php?w=u&amp;bn_id=<?php echo $row['bn_id']; ?>" class="btn btn_03">수정</a>
             <a href="./bannerformupdate.php?w=d&amp;bn_id=<?php echo $row['bn_id']; ?>" onclick="return delete_confirm(this);" class="btn btn_02">삭제</a>
         </td>
     </tr>
     <tr class="<?php echo $bg; ?>">
-        <td headers="th_img" colspan="7" class="td_img_view sbn_img">
+        <td headers="th_img" colspan="8" class="td_img_view sbn_img">
             <div class="sbn_image"><?php echo $bn_img; ?></div>
             <button type="button" class="sbn_img_view btn_frmline">이미지확인</button>
         </td>

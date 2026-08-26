@@ -25,6 +25,7 @@ $bn_alt = isset($_POST['bn_alt']) ? addslashes(strip_tags(clean_xss_attributes(s
 $bn_device = isset($_POST['bn_device']) ? safe_replace_regex($_POST['bn_device']) : '';
 $bn_position = isset($_POST['bn_position']) ? addslashes(clean_xss_tags(stripslashes($_POST['bn_position']), 1, 1)) : '';
 $bn_border = isset($_POST['bn_border']) ? (int) $_POST['bn_border'] : 0;
+$bn_price = isset($_POST['bn_price']) ? (int) $_POST['bn_price'] : 0;
 $bn_new_win = isset($_POST['bn_new_win']) ? (int) $_POST['bn_new_win'] : 0;
 $bn_begin_time = isset($_POST['bn_begin_time']) ? safe_replace_regex($_POST['bn_begin_time'], 'time') : '';
 $bn_end_time = isset($_POST['bn_end_time']) ? safe_replace_regex($_POST['bn_end_time'], 'time') : '';
@@ -57,6 +58,7 @@ if ($w=="")
                     bn_device     = '$bn_device',
                     bn_position   = '$bn_position',
                     bn_border     = '$bn_border',
+                    bn_price      = '$bn_price',
                     bn_new_win    = '$bn_new_win',
                     bn_begin_time = '$bn_begin_time',
                     bn_end_time   = '$bn_end_time',
@@ -75,6 +77,7 @@ else if ($w=="u")
                     bn_device     = '$bn_device',
                     bn_position   = '$bn_position',
                     bn_border     = '$bn_border',
+                    bn_price      = '$bn_price',
                     bn_new_win    = '$bn_new_win',
                     bn_begin_time = '$bn_begin_time',
                     bn_end_time   = '$bn_end_time',

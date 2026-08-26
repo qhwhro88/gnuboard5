@@ -159,6 +159,13 @@ include_once (G5_ADMIN_PATH.'/admin.head.php');
            <?php echo order_select("bn_order", $bn['bn_order']); ?>
         </td>
     </tr>
+    <tr>
+        <th scope="row"><label for="bn_price">고정가격</label></th>
+        <td>
+           <?php echo help("광고 고정가격입니다. 단위는 원(₩)입니다. 예: 100000"); ?>
+           <input type="text" name="bn_price" value="<?php echo isset($bn['bn_price']) ? $bn['bn_price'] : 0; ?>" id="bn_price" class="frm_input" size="15">
+        </td>
+    </tr>
     </tbody>
     </table>
 </div>

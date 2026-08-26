@@ -22,9 +22,9 @@ include_once(G5_THEME_PATH.'/head.php');
     // 이 함수가 바로 최신글을 추출하는 역할을 합니다.
     // 사용방법 : latest(스킨, 게시판아이디, 출력라인, 글자수);
     // 테마의 스킨을 사용하려면 theme/basic 과 같이 지정
-    echo latest('theme/pic_list', 'free', 4, 23);		// 최소설치시 자동생성되는 자유게시판
-	echo latest('theme/pic_list', 'qa', 4, 23);			// 최소설치시 자동생성되는 질문답변게시판
-	echo latest('theme/pic_list', 'notice', 4, 23);		// 최소설치시 자동생성되는 공지사항게시판
+    echo latest('theme/pic_list', 'promotion', 4, 23);	// 기업홍보
+	echo latest('theme/pic_list', 'stock', 4, 23);			// 재고판매
+	echo latest('theme/pic_list', 'futian1', 4, 23);		// 푸텐시장 1기
     ?>
 </div>
 <div class="latest_wr">
@@ -33,7 +33,7 @@ include_once(G5_THEME_PATH.'/head.php');
     // 이 함수가 바로 최신글을 추출하는 역할을 합니다.
     // 사용방법 : latest(스킨, 게시판아이디, 출력라인, 글자수);
     // 테마의 스킨을 사용하려면 theme/basic 과 같이 지정
-    echo latest('theme/pic_block', 'gallery', 4, 23);		// 최소설치시 자동생성되는 갤러리게시판
+    echo latest('theme/pic_block', 'huangyuan', 4, 23);		// 황웬복장시장
     ?>
     <!-- } 사진 최신글2 끝 -->
 </div>
@@ -47,7 +47,7 @@ include_once(G5_THEME_PATH.'/head.php');
                 where a.bo_device <> 'mobile' ";
     if(!$is_admin)
 	$sql .= " and a.bo_use_cert = '' ";
-    $sql .= " and a.bo_table not in ('notice', 'gallery') ";     //공지사항과 갤러리 게시판은 제외
+    $sql .= " and a.bo_table not in ('promotion', 'stock', 'futian1', 'huangyuan') ";     //상단 최신글에 노출된 게시판은 제외
     $sql .= " order by b.gr_order, a.bo_order ";
     $result = sql_query($sql);
     for ($i=0; $row=sql_fetch_array($result); $i++) {
