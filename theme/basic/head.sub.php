@@ -77,7 +77,12 @@ if (isset($bo_table) && $bo_table) {
 <meta property="og:description" content="<?php echo htmlspecialchars($seo_description, ENT_QUOTES, 'UTF-8'); ?>">
 <meta property="og:url" content="<?php echo htmlspecialchars($seo_canonical, ENT_QUOTES, 'UTF-8'); ?>">
 <meta property="og:locale" content="ko_KR">
+<meta property="og:image" content="<?php echo G5_IMG_URL; ?>/logo.png">
+<meta property="og:image:width" content="149">
+<meta property="og:image:height" content="36">
+<meta property="og:image:alt" content="<?php echo htmlspecialchars($seo_site_name, ENT_QUOTES, 'UTF-8'); ?>">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="<?php echo G5_IMG_URL; ?>/logo.png">
 <meta name="twitter:title" content="<?php echo htmlspecialchars($g5_head_title, ENT_QUOTES, 'UTF-8'); ?>">
 <meta name="twitter:description" content="<?php echo htmlspecialchars($seo_description, ENT_QUOTES, 'UTF-8'); ?>">
 <?php
