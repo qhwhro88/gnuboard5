@@ -15,6 +15,11 @@ if(G5_COMMUNITY_USE === false) {
 include_once(G5_THEME_PATH.'/head.php');
 ?>
 
+<?php
+// 커뮤니티 홈 상단 정적 배너 (최대 3개 병렬, 각 390×130)
+display_banner('커뮤니티', 'topbanner.skin.php');
+?>
+
 <h2 class="sound_only">최신글</h2>
 
 <div class="latest_top_wr">

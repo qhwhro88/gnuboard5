@@ -4,7 +4,7 @@ include_once('./_common.php');
 
 auth_check_menu($auth, $sub_menu, "r");
 
-$bn_position = (isset($_GET['bn_position']) && in_array($_GET['bn_position'], array('메인', '왼쪽'))) ? $_GET['bn_position'] : '';
+$bn_position = (isset($_GET['bn_position']) && in_array($_GET['bn_position'], array('메인', '왼쪽', '커뮤니티'))) ? $_GET['bn_position'] : '';
 $bn_device = (isset($_GET['bn_device']) && in_array($_GET['bn_device'], array('pc', 'mobile'))) ? $_GET['bn_device'] : 'both';
 $bn_time = (isset($_GET['bn_time']) && in_array($_GET['bn_time'], array('ing', 'end'))) ? $_GET['bn_time'] : '';
 
@@ -57,6 +57,7 @@ $from_record = ($page - 1) * $rows; // 시작 열을 구함
         <option value=""<?php echo get_selected($bn_position, '', true); ?>>위치 전체</option>
         <option value="메인"<?php echo get_selected($bn_position, '메인', true); ?>>메인</option>
         <option value="왼쪽"<?php echo get_selected($bn_position, '왼쪽', true); ?>>왼쪽</option>
+        <option value="커뮤니티"<?php echo get_selected($bn_position, '커뮤니티', true); ?>>커뮤니티</option>
     </select>
 
     <select name="bn_device" id="bn_device">

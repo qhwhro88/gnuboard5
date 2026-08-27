@@ -9,6 +9,11 @@ if(G5_COMMUNITY_USE === false) {
 include_once(G5_THEME_MOBILE_PATH.'/head.php');
 ?>
 
+<?php
+// 커뮤니티 홈 상단 정적 배너 (모바일, 최대 3개 세로 스택)
+display_banner('커뮤니티', 'topbanner.skin.php');
+?>
+
 <!-- 메인화면 최신글 시작 -->
 <?php
 //  최신글

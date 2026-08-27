@@ -58,6 +58,7 @@ include_once (G5_ADMIN_PATH.'/admin.head.php');
         <th scope="row">이미지</th>
         <td>
             <input type="file" name="bn_bimg">
+            <span id="bn_size_hint" class="frm_info" style="display:inline-block;margin-left:8px;color:#4a6da7;font-weight:bold;"></span>
             <?php
             $bimg_str = "";
             $bimg = G5_DATA_PATH."/banner/{$bn['bn_id']}";
@@ -107,10 +108,11 @@ include_once (G5_ADMIN_PATH.'/admin.head.php');
     <tr>
         <th scope="row"><label for="bn_position">출력위치</label></th>
         <td>
-            <?php echo help("왼쪽 : 쇼핑몰화면 왼쪽에 출력합니다.\n메인 : 쇼핑몰 메인화면(index.php)에만 출력합니다."); ?>
+            <?php echo help("왼쪽 : 쇼핑몰화면 왼쪽에 출력합니다.\n메인 : 쇼핑몰 메인화면(index.php)에만 출력합니다.\n커뮤니티 : 커뮤니티 홈 상단에 병렬 3개 자리(각 390×130)로 출력합니다. 이미지는 반드시 390×130(가로×세로) 크기로 맞춰 주세요."); ?>
             <select name="bn_position" id="bn_position">
                 <option value="왼쪽" <?php echo get_selected($bn['bn_position'], '왼쪽'); ?>>왼쪽</option>
                 <option value="메인" <?php echo get_selected($bn['bn_position'], '메인'); ?>>메인</option>
+                <option value="커뮤니티" <?php echo get_selected($bn['bn_position'], '커뮤니티'); ?>>커뮤니티</option>
         </select>
         </td>
     </tr>
@@ -176,6 +178,21 @@ include_once (G5_ADMIN_PATH.'/admin.head.php');
 </div>
 
 </form>
+
+<script>
+jQuery(function($){
+    function bn_update_size_hint() {
+        var pos = $('#bn_position').val();
+        var hint = '';
+        if (pos === '커뮤니티') {
+            hint = '권장 이미지 크기: 390×130 (가로 390px × 세로 130px)';
+        }
+        $('#bn_size_hint').text(hint);
+    }
+    $('#bn_position').on('change', bn_update_size_hint);
+    bn_update_size_hint();
+});
+</script>
 
 <?php
 include_once (G5_ADMIN_PATH.'/admin.tail.php');
