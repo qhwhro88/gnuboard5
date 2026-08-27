@@ -685,3 +685,90 @@ admin 账号和密码（浏览器"记住密码"功能）。
 所有文件修改前均备份为 *.bak.20260825：
   cp <file>.bak.20260825 <file>
 ============================================================
+
+============================================================
+[追加] 商城前端路径拦截 + 广告横幅图片放行
+============================================================
+时间: 2026-08-27T14:52:42Z UTC / 2026-08-27T22:52:42+0800 LOCAL
+
+[背景]
+1. 站点不启用 G5 商城，但爬虫/扫描器频繁探测 /shop/* 与
+   /mobile/shop/* 路径，在 PHP 层触发 Undefined 变量/键的
+   Warning 噪音（污染错误日志）。
+2. 广告系统（一期/二期）复用商城 banner 表：
+   - 点击统计: /shop/bannerhit.php
+   - 横幅图片: /data/banner/{bn_id}
+
+[变更内容 - /etc/nginx/sites-available/yiwupage]
+1. 关闭商城前端（保留广告点击统计）
+   - location ^~ /shop/bannerhit.php  → 放行（广告点击统计）
+   - location ^~ /shop/              → return 404
+   - location ^~ /mobile/shop/       → return 404
+
+2. 放行广告横幅图片
+   - location ^~ /data/banner/       → try_files $uri =404
+     （纯静态直出，无 PHP 执行，上传图片无代码执行风险）
+   - /data/ 其余路径仍保持 deny（dbconfig/session/file/cache）
+
+[验证结果]
+- /shop/、/shop/search.php、/shop/listtype.php        → 404
+- /mobile/shop/search.php、/mobile/shop/listtype.php  → 404
+- /shop/bannerhit.php?bn_id=1                         → 200（放行）
+- /data/banner/ 临时 1×1 PNG                          → 200（68 字节，已清理）
+- /data/、/data/dbconfig.php 等                       → 404（防护保持）
+- 首页 / promotion 等社区页面                         → 200
+- nginx -t 校验通过并 reload
+
+[说明]
+- 横幅文件为无扩展名（GnuBoard 以 bn_id 命名），nginx 以
+  application/octet-stream 直出；浏览器 <img> 按图片内容
+  嗅探正常渲染，无 PHP 执行风险。
+- 与原「商城禁用」差异：本次额外放行 /shop/bannerhit.php
+  与 /data/banner/，用于支撑广告系统的点击统计与图片展示。
+
+[文件变更]
+- /etc/nginx/sites-available/yiwupage（新增 4 个 location）
+- 备份: /etc/nginx/sites-available/yiwupage.bak.20260827224025
+============================================================
+
+============================================================
+[追加] 商城 PHP Undefined 告警确认（非修复项）
+============================================================
+时间: 2026-08-27T15:13:07Z UTC / 2026-08-27T23:13:07+0800 LOCAL
+
+[背景]
+错误日志中出现 5 处 PHP Warning/Notice（非致命），均位于已决定
+不开发的商城前端文件，由外部爬虫/扫描器探测 /shop/* 路径触发。
+
+[告警清单 - 全部为商城前端]
+- /home/www/mobile/shop/listtype.php:35
+  Undefined variable $skin —— 该文件为子模板，需由商品列表页
+  预先定义 $skin，被直接访问导致未定义。
+- /home/www/shop/search.php:26
+  Undefined array key "q" —— 无 q 查询参数直接访问搜索页。
+- /home/www/mobile/shop/search.php:18
+  Undefined array key "q" —— 同上（移动端）。
+- /home/www/skin/shop/basic/search.skin.php:91
+  Undefined variable $error —— $error 仅在 else 分支赋值。
+- /home/www/mobile/skin/shop/basic/search.skin.php:93
+  Undefined variable $error —— 同上（移动端）。
+
+[触发来源]
+客户端 IP 均为 AWS 爬虫/扫描器（44.221.227.90、23.21.227.240、
+34.236.185.101），探测 /shop/search.php、/shop/listtype.php 等
+已废弃路径，非站点正常功能触发。
+
+[判定结论]
+1. 全部为非致命 Warning/Notice，页面照常渲染，无白屏/报错。
+2. 位于已决定不开发的商城前端，无需修改 PHP 代码。
+3. 已在 Nginx 层拦截（上一章节），实测：
+   - /shop/                       → 404
+   - /shop/search.php             → 404
+   - /mobile/shop/listtype.php    → 404
+   - /shop/bannerhit.php（广告）  → 200
+   故后续外部请求不再进入 PHP，告警将自然消失。
+4. 属历史日志噪音，标记为「非修复项」，无需处理。
+
+[文件变更]
+- 无（仅记录分析结论，未改任何代码）
+============================================================
