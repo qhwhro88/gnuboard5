@@ -50,6 +50,37 @@ if($config['cf_add_meta'])
 ?>
 <title><?php echo $g5_head_title; ?></title>
 <?php
+// SEO 메타태그 (전 엔진 공용: Google/Naver/Bing/Baidu 등)
+$seo_site_name = $config['cf_title'];
+$seo_description = '중국 이우(의우) 시장 정보와 무역 커뮤니티 — 푸텐시장·황웬복장시장 안내, 기업홍보, 재고판매, 구인·구직·인재 채용 정보를 제공합니다.';
+$seo_keywords = '이우, 의우, 이우시장, 푸텐시장, 황웬복장시장, 기업홍보, 재고판매, 구인, 구직, 인재, 채용, 중국시장';
+if (isset($board['bo_subject']) && $board['bo_subject'])
+    $seo_description = $board['bo_subject'];
+
+// canonical URL
+$seo_canonical = G5_URL . '/';
+if (isset($bo_table) && $bo_table) {
+    $seo_canonical = G5_BBS_URL . '/board.php?bo_table=' . rawurlencode($bo_table);
+} elseif (isset($gr_id) && $gr_id) {
+    $seo_canonical = G5_BBS_URL . '/group.php?gr_id=' . rawurlencode($gr_id);
+} else {
+    $seo_uri = isset($_SERVER['REQUEST_URI']) ? preg_replace('/[?#].*$/', '', $_SERVER['REQUEST_URI']) : '';
+    if ($seo_uri && $seo_uri != '/') $seo_canonical = G5_URL . $seo_uri;
+}
+?>
+<meta name="description" content="<?php echo htmlspecialchars($seo_description, ENT_QUOTES, 'UTF-8'); ?>">
+<meta name="keywords" content="<?php echo htmlspecialchars($seo_keywords, ENT_QUOTES, 'UTF-8'); ?>">
+<link rel="canonical" href="<?php echo htmlspecialchars($seo_canonical, ENT_QUOTES, 'UTF-8'); ?>">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="<?php echo htmlspecialchars($seo_site_name, ENT_QUOTES, 'UTF-8'); ?>">
+<meta property="og:title" content="<?php echo htmlspecialchars($g5_head_title, ENT_QUOTES, 'UTF-8'); ?>">
+<meta property="og:description" content="<?php echo htmlspecialchars($seo_description, ENT_QUOTES, 'UTF-8'); ?>">
+<meta property="og:url" content="<?php echo htmlspecialchars($seo_canonical, ENT_QUOTES, 'UTF-8'); ?>">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="<?php echo htmlspecialchars($g5_head_title, ENT_QUOTES, 'UTF-8'); ?>">
+<meta name="twitter:description" content="<?php echo htmlspecialchars($seo_description, ENT_QUOTES, 'UTF-8'); ?>">
+<?php
 $shop_css = '';
 if (defined('_SHOP_')) $shop_css = '_shop';
 echo '<link rel="stylesheet" href="'.run_replace('head_css_url', G5_THEME_CSS_URL.'/'.(G5_IS_MOBILE?'mobile':'default').$shop_css.'.css?ver='.G5_CSS_VER, G5_THEME_URL).'">'.PHP_EOL;

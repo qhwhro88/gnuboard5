@@ -16,5 +16,5 @@ Disallow: /bbs/member_confirm.php
 Disallow: /bbs/password_lost.php
 Disallow: /bbs/formmail.php
 
-# 站点地图（如后续生成）
-# Sitemap: https://yiwupage.com/sitemap.xml
+# 站点地图
+Sitemap: https://yiwupage.com/sitemap.xml
