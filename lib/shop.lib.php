@@ -30,7 +30,7 @@ function get_shop_uid($type, $id, $time, $ip)
  * 현금영수증 발급 또는 조회에 대한 검증
  *
  * 다음 셋 중 하나여야 접근 허용:
- *   1. 관리자
+ *   1. 최고관리자 (게시판/그룹 관리자 권한은 제외)
  *   2. 본인 주문/개인결제 (로그인 회원이고 mb_id 일치)
  *   3. 비회원이지만 정당한 세션 uid 보유 (orderinquiry.php에서 비밀번호 검증 통과 후
  *      또는 주문 완료 직후 세션에 저장된 ss_orderview_uid / ss_personalpay_uid가
@@ -48,8 +48,9 @@ function is_shop_order_owner($od, $type = 'order')
         return false;
     }
 
-    // 관리자
-    if ($is_admin) {
+    // 최고관리자만 전체 주문/개인결제 접근 허용
+    // (요청 bo_table 로 좌우되는 게시판/그룹 관리자 문맥은 인정하지 않음)
+    if ($is_admin === 'super') {
         return true;
     }
 
@@ -1021,7 +1022,7 @@ function session_check()
     global $g5;
 
     if (!trim(get_session('ss_uniqid')))
-        gotourl(G5_SHOP_URL);
+        goto_url(G5_SHOP_URL);
 }
 
 // 상품 선택옵션
@@ -1353,14 +1354,16 @@ function get_list_skin_options($pattern, $dirname='./', $sval='')
 {
     $str = '<option value="">선택</option>'.PHP_EOL;
 
-    unset($arr);
-    $handle = opendir($dirname);
-    while ($file = readdir($handle)) {
-        if (preg_match("/$pattern/", $file, $matches)) {
-            $arr[] = $matches[0];
+    $arr = array();
+    $handle = @opendir($dirname);
+    if ($handle !== false) {
+        while (false !== ($file = readdir($handle))) {
+            if (preg_match("/$pattern/", $file, $matches)) {
+                $arr[] = $matches[0];
+            }
         }
+        closedir($handle);
     }
-    closedir($handle);
 
     sort($arr);
     foreach($arr as $value) {
@@ -1631,17 +1634,32 @@ function get_coupon_id()
 {
     $len = 16;
     $chars = "ABCDEFGHJKLMNPQRSTUVWXYZ123456789";
-
-    srand((double)microtime()*1000000);
-
-    $i = 0;
+    $chars_len = strlen($chars);
     $str = '';
 
-    while ($i < $len) {
-        $num = rand() % strlen($chars);
-        $tmp = substr($chars, $num, 1);
-        $str .= $tmp;
-        $i++;
+    if (function_exists('get_random_token_string')) {
+        // 문자 종류 수로 나누어 떨어지는 구간만 사용하여 특정 문자에 치우치지 않도록 한다.
+        $limit = 256 - (256 % $chars_len);
+        $round = 0;
+
+        while (strlen($str) < $len && $round < 8) {
+            $bytes = pack('H*', get_random_token_string($len + 8));
+            $bytes_len = strlen($bytes);
+
+            for ($i = 0; $i < $bytes_len && strlen($str) < $len; $i++) {
+                $num = ord($bytes[$i]);
+                if ($num >= $limit)
+                    continue;
+
+                $str .= substr($chars, $num % $chars_len, 1);
+            }
+
+            $round++;
+        }
+    }
+
+    while (strlen($str) < $len) {
+        $str .= substr($chars, mt_rand(0, $chars_len - 1), 1);
     }
 
     $str = preg_replace("/([0-9A-Z]{4})([0-9A-Z]{4})([0-9A-Z]{4})([0-9A-Z]{4})/", "\\1-\\2-\\3-\\4", $str);

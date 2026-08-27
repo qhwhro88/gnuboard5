@@ -280,7 +280,7 @@ if($od['od_pg'] == 'lg') {
                 </tr>
                 <tr>
                     <th scope="row">결제방식</th>
-                    <td><?php echo check_pay_name_replace($od['od_settle_case'], $od, 1); ?></td>
+                    <td><?php echo get_text(check_pay_name_replace($od['od_settle_case'], $od, 1)); ?></td>
                 </tr>
                 <tr>
                     <th scope="row">결제금액</th>
@@ -442,7 +442,11 @@ if($od['od_pg'] == 'lg') {
                             $cash = unserialize($od['od_cash_info']);
                             $cash_receipt_script = 'window.open(\'https://iniweb.inicis.com/DefaultWebApp/mall/cr/cm/Cash_mCmReceipt.jsp?noTid='.$cash['TID'].'&clpaymethod=22\',\'showreceipt\',\'width=380,height=540,scrollbars=no,resizable=no\');';
                         } else if($od['od_pg'] == 'nicepay') {
-                            $cash_receipt_script = 'window.open(\'https://npg.nicepay.co.kr/issue/IssueLoader.do?type=1&TID='.$od['od_tno'].'&noMethod=1\',\'receipt\',\'width=430,height=700\');';
+                            $cash = $od['od_cash_info'] ? unserialize($od['od_cash_info']) : array();
+                            if(!is_array($cash))
+                                $cash = array();
+                            $cash_tid = isset($cash['TID']) && $cash['TID'] ? $cash['TID'] : $od['od_tno'];
+                            $cash_receipt_script = 'window.open(\'https://npg.nicepay.co.kr/issue/IssueLoader.do?type=1&TID='.$cash_tid.'&noMethod=1\',\'receipt\',\'width=430,height=700\');';
                         } else {
                             require_once G5_SHOP_PATH.'/settle_kcp.inc.php';
 

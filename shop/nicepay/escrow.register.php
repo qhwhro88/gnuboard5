@@ -50,10 +50,24 @@ $response = nicepay_reqPost($data, $escrowRequestURL);
 
 $nice_result = json_decode($response, true);
 
-// 성공이면
-if (isset($nice_result['ResultCode']) && $nice_result['ResultCode'] === 'C000') {
+if (!is_array($nice_result)) {
+    $nice_result = array();
+}
 
-} else {
+/**********************
+ * 4. 배송 등록  결과 *
+ **********************/
+
+$resultCode = isset($nice_result['ResultCode']) ? $nice_result['ResultCode'] : '';        // 결과코드
+$resultMsg  = isset($nice_result['ResultMsg']) ? $nice_result['ResultMsg'] : '나이스페이 응답을 확인할 수 없습니다.';          // 결과내용
+$dlv_date   = isset($nice_result['ProcessDate']) ? $nice_result['ProcessDate'] : '';
+$dlv_time   = isset($nice_result['ProcessTime']) ? $nice_result['ProcessTime'] : '';
+
+// 성공이면
+$escrow_register_success = ($resultCode === 'C000');
+$escrow_register_result = $nice_result;
+
+if (!$escrow_register_success) {
     // C000 이 아니면 다 실패
 
     /*
@@ -65,13 +79,14 @@ if (isset($nice_result['ResultCode']) && $nice_result['ResultCode'] === 'C000') 
     C007    취소된 거래는 배송등록 불가
     */
 
+    if (isset($od['od_id']) && $od['od_id']) {
+        $escrow_result_code = $resultCode !== '' ? $resultCode : 'NO_RESPONSE';
+        $escrow_memo = G5_TIME_YMDHIS.' 나이스페이 에스크로 배송등록 실패 ('.$escrow_result_code.') '.$resultMsg."\n";
+        $escrow_memo = sql_escape_string($escrow_memo);
+        $escrow_od_id = sql_escape_string($od['od_id']);
+
+        sql_query(" update {$g5['g5_shop_order_table']} set od_shop_memo = concat(od_shop_memo, '$escrow_memo') where od_id = '$escrow_od_id' ", false);
+    }
+
+    return;
 }
-
-/**********************
- * 4. 배송 등록  결과 *
- **********************/
-
-$resultCode = $nice_result['ResultCode'];        // 결과코드 ("00"이면 지불 성공)
-$resultMsg  = $nice_result['ResultMsg'];          // 결과내용 (지불결과에 대한 설명)
-$dlv_date   = $nice_result['ProcessDate'];
-$dlv_time   = $nice_result['ProcessTime'];

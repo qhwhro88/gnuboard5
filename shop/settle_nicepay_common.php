@@ -31,52 +31,96 @@ if (in_array($_SERVER['REMOTE_ADDR'], $pg_allow_ips)) {
     $VbankName      = isset($_POST['VbankName']) ? addslashes(clean_xss_tags(stripslashes($_POST['VbankName']))) : '';           //가상계좌 은행명
     $VbankInputName = isset($_POST['VbankInputName']) ? addslashes(clean_xss_tags(stripslashes($_POST['VbankInputName']))) : '';      //입금자 명
     $CancelDate     = isset($_POST['CancelDate']) ? addslashes(clean_xss_tags(stripslashes($_POST['CancelDate']))) : '';          //취소일시
-    
-    //가상계좌채번시 현금영수증 자동발급신청이 되었을경우 전달되며 
+
+    //가상계좌채번시 현금영수증 자동발급신청이 되었을경우 전달되며
     //RcptTID 에 값이 있는경우만 발급처리 됨
     $RcptTID        = isset($_POST['RcptTID']) ? addslashes(clean_xss_tags(stripslashes($_POST['RcptTID']))) : '';             //현금영수증 거래번호
     $RcptType       = isset($_POST['RcptType']) ? addslashes(clean_xss_tags(stripslashes($_POST['RcptType']))) : '';            //현금 영수증 구분(0:미발행, 1:소득공제용, 2:지출증빙용)
     $RcptAuthCode   = isset($_POST['RcptAuthCode']) ? addslashes(clean_xss_tags(stripslashes($_POST['RcptAuthCode']))) : '';        //현금영수증 승인번호
-    
+
+    $nicepay_mid = $default['de_card_test'] ? 'nicepay00m' : 'SR'.$default['de_nicepay_mid'];
+
+    if ($M_ID !== $nicepay_mid) {
+        echo "FAIL";
+        exit;
+    }
+
     // 입금통보 코드가 4110 성공이면
     if ($ResultCode === '4110') {
         // 입금결과 처리
-        $sql = " select pp_id, od_id from {$g5['g5_shop_personalpay_table']} where pp_id = '$MOID' and pp_app_no = '$VbankNum' ";
+        $sql = " select pp_id, od_id, pp_price, pp_receipt_price from {$g5['g5_shop_personalpay_table']} where pp_id = '$MOID' and pp_app_no = '$VbankNum' and pp_tno = '$TID' ";
         $row = sql_fetch($sql);
 
         $result = false;
-        $receipt_time = preg_replace("/([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/", "\\1-\\2-\\3 \\4:\\5:\\6", $AuthDate);
+        $is_personalpay_order = (isset($row['pp_id']) && $row['pp_id']);
+        $receipt_time = preg_replace("/([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/", "20\\1-\\2-\\3 \\4:\\5:\\6", $AuthDate);
 
-        if($row['pp_id']) {
-            // 개인결제 UPDATE
-            $sql = " update {$g5['g5_shop_personalpay_table']}
-                        set pp_receipt_price    = '$Amt',
-                            pp_receipt_time     = '$receipt_time'
-                        where pp_id = '$MOID'
-                            and pp_app_no = '$VbankNum' ";
-            $result = sql_query($sql, false);
+        if($is_personalpay_order) {
+            if((int)$row['pp_price'] === $Amt) {
+                $personalpay_memo = "개인결제 ".$row['pp_id']." 로 결제완료";
 
-            if($row['od_id']) {
-                // 주문서 UPDATE
-                $sql = " update {$g5['g5_shop_order_table']}
-                            set od_receipt_price = od_receipt_price + '$Amt',
-                                od_receipt_time = '$receipt_time',
-                                od_shop_memo = concat(od_shop_memo, \"\\n개인결제 ".$row['pp_id']." 로 결제완료 - ".$receipt_time."\")
-                            where od_id = '{$row['od_id']}' ";
-                $result = sql_query($sql, FALSE);
+                if((int)$row['pp_receipt_price'] === $Amt) {
+                    if($row['od_id']) {
+                        $od_row = sql_fetch(" select od_id, od_shop_memo from {$g5['g5_shop_order_table']} where od_id = '{$row['od_id']}' ");
+
+                        if(isset($od_row['od_id']) && $od_row['od_id'] && strpos($od_row['od_shop_memo'], $personalpay_memo) === false) {
+                            $sql = " update {$g5['g5_shop_order_table']}
+                                        set od_receipt_price = od_receipt_price + '$Amt',
+                                            od_receipt_time = '$receipt_time',
+                                            od_shop_memo = concat(od_shop_memo, \"\\n".$personalpay_memo." - ".$receipt_time."\")
+                                        where od_id = '{$row['od_id']}' ";
+                            $result = sql_query($sql, FALSE);
+                        } else {
+                            $result = true;
+                        }
+                    } else {
+                        $result = true;
+                    }
+                } else if((int)$row['pp_receipt_price'] === 0) {
+                    // 개인결제 UPDATE
+                    $sql = " update {$g5['g5_shop_personalpay_table']}
+                                set pp_receipt_price    = '$Amt',
+                                    pp_receipt_time     = '$receipt_time'
+                                where pp_id = '$MOID'
+                                    and pp_app_no = '$VbankNum' ";
+                    $result = sql_query($sql, false);
+
+                    if($row['od_id']) {
+                        // 주문서 UPDATE
+                        $sql = " update {$g5['g5_shop_order_table']}
+                                    set od_receipt_price = od_receipt_price + '$Amt',
+                                        od_receipt_time = '$receipt_time',
+                                        od_shop_memo = concat(od_shop_memo, \"\\n".$personalpay_memo." - ".$receipt_time."\")
+                                    where od_id = '{$row['od_id']}' ";
+                        $result = sql_query($sql, FALSE);
+                    }
+                }
             }
         } else {
-            // 주문서 UPDATE
-            $sql = " update {$g5['g5_shop_order_table']}
-                        set od_receipt_price = '$Amt',
-                            od_receipt_time = '$receipt_time'
+            $sql = " select od_id, od_misu, od_receipt_price
+                        from {$g5['g5_shop_order_table']}
                         where od_id = '$MOID'
-                        and od_app_no = '$VbankNum' ";
-            $result = sql_query($sql, FALSE);
+                        and od_app_no = '$VbankNum'
+                        and od_tno = '$TID' ";
+            $od_row = sql_fetch($sql);
+
+            if(isset($od_row['od_id']) && $od_row['od_id']) {
+                if((int)$od_row['od_misu'] === $Amt) {
+                    // 주문서 UPDATE
+                    $sql = " update {$g5['g5_shop_order_table']}
+                                set od_receipt_price = '$Amt',
+                                    od_receipt_time = '$receipt_time'
+                                where od_id = '$MOID'
+                                and od_app_no = '$VbankNum' ";
+                    $result = sql_query($sql, FALSE);
+                } else if((int)$od_row['od_receipt_price'] === $Amt && (int)$od_row['od_misu'] === 0) {
+                    $result = true;
+                }
+            }
         }
 
         if($result) {
-            if ($row['od_id'])
+            if (isset($row['od_id']) && $row['od_id'])
                 $od_id = $row['od_id'];
             else
                 $od_id = $MOID;
@@ -91,7 +135,7 @@ if (in_array($_SERVER['REMOTE_ADDR'], $pg_allow_ips)) {
             if($row['cnt'] == 1) {
                 // 미수금 정보 업데이트
                 $info = get_order_info($od_id);
-                
+
                 $add_update_sql = '';
 
                 // 현금영수증 발급시 1 또는 2 이면
@@ -125,7 +169,7 @@ if (in_array($_SERVER['REMOTE_ADDR'], $pg_allow_ips)) {
 
             fwrite( $logfile,"************************************************\r\n");
             fwrite( $logfile,"PayMethod     : ".$PayMethod."\r\n");
-            fwrite( $logfile,"MID           : ".$MID."\r\n");
+            fwrite( $logfile,"MID           : ".$M_ID."\r\n");
             fwrite( $logfile,"MallUserID    : ".$MallUserID."\r\n");
             fwrite( $logfile,"Amt           : ".$Amt."\r\n");
             fwrite( $logfile,"name          : ".$name."\r\n");
@@ -167,7 +211,11 @@ if (in_array($_SERVER['REMOTE_ADDR'], $pg_allow_ips)) {
 
         //*************************************************************************************
 
+    } else {
+        echo "FAIL";
     }
 
 
+} else {
+    echo "FAIL";
 }

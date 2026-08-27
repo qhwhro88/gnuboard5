@@ -244,11 +244,19 @@ if(!$result) {
         case 'inicis':
             include G5_SHOP_PATH.'/inicis/inipay_cancel.php';
             break;
+        case 'nicepay':
+            $od_id = $pp['pp_id'];
+            $tno = $pp_tno;
+            $cancelAmt = (int)$pg_price;
+            $partialCancelCode = 0;
+            include G5_SHOP_PATH.'/nicepay/cancel_process.php';
+            break;
         default:
             include G5_SHOP_PATH.'/kcp/pp_ax_hub_cancel.php';
             break;
     }
 
+    if(function_exists('add_order_post_log')) add_order_post_log($cancel_msg);
     die('개인결제 정보를 처리하는 중 오류가 발생했습니다. 결제 취소 여부를 관리자에게 문의해 주십시오.');
 }
 
@@ -288,11 +296,19 @@ if($pp_receipt_price > 0 && $pp['pp_id'] && $pp['od_id']) {
             case 'inicis':
                 include G5_SHOP_PATH.'/inicis/inipay_cancel.php';
                 break;
+            case 'nicepay':
+                $od_id = $pp['pp_id'];
+                $tno = $pp_tno;
+                $cancelAmt = (int)$pg_price;
+                $partialCancelCode = 0;
+                include G5_SHOP_PATH.'/nicepay/cancel_process.php';
+                break;
             default:
                 include G5_SHOP_PATH.'/kcp/pp_ax_hub_cancel.php';
                 break;
         }
 
+        if(function_exists('add_order_post_log')) add_order_post_log($cancel_msg);
         die('주문 결제정보를 처리하는 중 오류가 발생했습니다. 결제 취소 여부를 관리자에게 문의해 주십시오.');
     }
 
