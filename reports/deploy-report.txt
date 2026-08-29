@@ -1181,3 +1181,34 @@ WHERE bo_subject_len = 0;  (12개 게시판 적용)
 - 보고서(이 문서) 외 git 추적 파일 변경 없음 (DB 데이터 변경)
 - /home/www/scripts/add-notice-guide.php (신규, gitignore 대상)
 ============================================================
+
+============================================================
+[추가] SEO 메타데이터 보강 (게시글·콘텐츠 페이지별 description)
+============================================================
+시간: 2026-08-29T11:00:00Z UTC / 2026-08-29T19:00:00+0800 LOCAL
+
+[배경]
+기존 SEO 메타태그(테마 head.sub.php)가 있으나, 게시글 보기·콘텐츠 페이지의
+description 이 게시판명 또는 사이트 공통 기본 설명으로만 출력되는 한계가 있어
+페이지별 설명으로 보강한다.
+
+[변경 내용]
+- theme/basic/head.sub.php 에 yiwupage_seo_excerpt() 요약 함수 추가
+  (HTML 제거 → 엔티티 디코드 → 공백 정리 → 160자 절단)
+- description 우선순위 부여:
+  1) 게시글 보기(wr_id + wr_content) → 본문 요약
+  2) 콘텐츠 페이지(co_content) → 본문 요약
+  3) 게시판 목록 → 게시판명
+  4) 그 외 → 사이트 공통 기본 설명
+
+[검증]
+- content.php?co_id=company → 페이지 본문 기반 description 확인
+- board.php?bo_table=notice&wr_id=1 → 게시글 제목·본문 기반 title/description 확인
+- php -l 구문 오류 없음
+
+[영향]
+- meta description(검색엔진), og:description·twitter:description(공유 미리보기) 개선
+
+[파일 변경]
+- theme/basic/head.sub.php (수정, git 추적 대상)
+============================================================

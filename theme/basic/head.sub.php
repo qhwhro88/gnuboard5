@@ -54,8 +54,37 @@ if($config['cf_add_meta'])
 $seo_site_name = $config['cf_title'];
 $seo_description = '중국 이우(의우) 시장 정보와 무역 커뮤니티 — 푸텐시장·황웬복장시장 안내, 기업홍보, 재고판매, 구인·구직·인재 채용 정보를 제공합니다.';
 $seo_keywords = '이우, 의우, 이우시장, 푸텐시장, 황웬복장시장, 기업홍보, 재고판매, 구인, 구직, 인재, 채용, 중국시장';
-if (isset($board['bo_subject']) && $board['bo_subject'])
+
+// 본문 요약 생성 (게시글/콘텐츠 페이지별 description 개선)
+if (!function_exists('yiwupage_seo_excerpt')) {
+    function yiwupage_seo_excerpt($str, $len = 160) {
+        if (!$str) return '';
+        $str = preg_replace('/<br\s*\/?>/i', ' ', $str);
+        $str = str_replace(array('</p>', '</li>', '</h1>', '</h2>', '</h3>', '</h4>', '</div>'), ' ', $str);
+        $str = strip_tags($str);
+        $str = html_entity_decode($str, ENT_QUOTES, 'UTF-8');
+        $str = str_replace(array("\r", "\n", "\t"), ' ', $str);
+        $str = preg_replace('/\s+/u', ' ', $str);
+        $str = trim($str);
+        if (function_exists('mb_substr')) {
+            if (mb_strlen($str, 'UTF-8') > $len)
+                $str = mb_substr($str, 0, $len, 'UTF-8') . '…';
+        } elseif (strlen($str) > $len) {
+            $str = substr($str, 0, $len) . '…';
+        }
+        return $str;
+    }
+}
+
+if (!empty($wr_id) && isset($write['wr_content']) && $write['wr_content']) {
+    // 게시글 본문 요약
+    $seo_description = yiwupage_seo_excerpt($write['wr_content']);
+} elseif (isset($co['co_content']) && $co['co_content']) {
+    // 콘텐츠 페이지 본문 요약
+    $seo_description = yiwupage_seo_excerpt($co['co_content']);
+} elseif (isset($board['bo_subject']) && $board['bo_subject']) {
     $seo_description = $board['bo_subject'];
+}
 
 // canonical URL
 $seo_canonical = G5_URL . '/';
