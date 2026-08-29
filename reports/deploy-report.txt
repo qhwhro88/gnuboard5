@@ -80,7 +80,7 @@ Yiwupage.com - Gnuboard 5 Production Deployment Report
 - 安全边界: 即使 GnuBoard 被注入，攻击面仅限 gnuboard5 库
 
 [遗留事项 / 下一步建议]
-1. HTTPS 未配置（仅 80 端口）。建议后续配置 certbot + 443 server block
+1. HTTPS 已配置并运行正常（Let's Encrypt，yiwupage.com + www，2026-11-22 到期，自动续期已启用）——原为"未配置"，已解决，详见文末 [追加] HTTPS/SSL 就绪确认
 2. server_name 用 '_' 通配。如需绑定 yiwupage.com 真实域名需修改 vhost
 3. GnuBoard 默认主题（theme/basic）已生效，可登录后台自定义
 4. 默认管理员密码为随机生成的 16 位字母数字，建议首次登录后改为含特殊字符的强密码
@@ -771,4 +771,41 @@ admin 账号和密码（浏览器"记住密码"功能）。
 
 [文件变更]
 - 无（仅记录分析结论，未改任何代码）
+============================================================
+
+============================================================
+[追加] HTTPS/SSL 就绪确认
+============================================================
+时间: 2026-08-29T04:38:02Z UTC / 2026-08-29T12:38:02+0800 LOCAL
+
+[背景]
+部署报告「遗留事项 #1」曾标注 HTTPS 未配置；本次核查发现
+HTTPS/SSL 已于 2026-08-24 配置完成并运行正常，无需重复操作。
+
+[证书信息]
+- 颁发机构: Let's Encrypt（CN=YE1）
+- 主体: CN=yiwupage.com
+- 覆盖域名: yiwupage.com、www.yiwupage.com
+- 有效期: 2026-08-24 ~ 2026-11-22（90 天）
+- 证书路径: /etc/letsencrypt/live/yiwupage.com/
+
+[服务端配置]
+- Nginx listen 443 ssl（含 [::]:443 ipv6）
+- HTTP (80) → HTTPS (443) 301 重定向（yiwupage.com / www）
+- HSTS: max-age=31536000; includeSubDomains; preload
+- server_name: yiwupage.com www.yiwupage.com（DNS → 43.131.242.91）
+
+[自动续期]
+- systemd: certbot.timer（active）
+- 兜底: /etc/cron.d/certbot（每 12 小时，非 systemd 环境生效）
+
+[验证结果]
+- http://yiwupage.com         → 301 → https://yiwupage.com/
+- http://www.yiwupage.com    → 301 → https://www.yiwupage.com/
+- https://yiwupage.com/       → 200
+- https://yiwupage.com/sitemap.xml → 200
+- openssl s_client 443 握手  → 证书链有效
+
+[文件变更]
+- 无（仅核查并确认，未改任何服务端配置）
 ============================================================
