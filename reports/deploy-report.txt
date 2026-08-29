@@ -866,3 +866,43 @@ HTTPS/SSL 已于 2026-08-24 配置完成并运行正常，无需重复操作。
 - crontab（新增 05:00 上游同步任务）
 - .gitignore（scripts/ 已忽略，运维脚本不入 GnuBoard5 源码库）
 ============================================================
+
+============================================================
+[追加] HSTS Preload 列表申请
+============================================================
+时间: 2026-08-29T05:59:39Z UTC / 2026-08-29T13:59:39+0800 LOCAL
+
+[背景]
+部署报告遗留事项曾标注「HSTS preload 列表申请（可选）」。
+本次正式向 hstspreload.org 提交 yiwupage.com，使其纳入浏览器
+内置 HSTS 预加载列表，实现首次访问即强制 HTTPS（无首次明文
+访问窗口），进一步增强传输安全。
+
+[提交前校验（全部满足 preload 硬性要求）]
+- 根域 HTTPS 响应头: Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+- www 子域 HTTPS 响应头: 同上（含 preload）
+- http://yiwupage.com     → 301 → https://yiwupage.com/（同主机）
+- http://www.yiwupage.com → 301 → https://www.yiwupage.com/（同主机）
+- 证书: Let's Encrypt 有效（2026-11-22 到期）
+- max-age ≥ 31536000（1 年）
+
+[提交结果]
+- 可预加载检测: {"errors": [], "warnings": []}（无错误/无警告）
+- 提交接口: POST https://hstspreload.org/api/v2/submit?domain=yiwupage.com → HTTP 200
+- 提交响应: {"errors": [], "warnings": []}
+- 提交后状态: pending（已进入预加载队列，等待编入 Chrome/Chromium 列表）
+
+[生效说明]
+- 提交成功后，Google 会在后续 Chrome 版本发布周期内将 yiwupage.com
+  编入预加载列表（通常数周后随浏览器更新生效）。
+- 生效后，即使首次访问也直接走 HTTPS，无明文首访窗口。
+
+[重要提醒 - 一旦生效不可轻易撤销]
+- HSTS preload 生效后，域名所有子域（含未来新增）都必须支持 HTTPS，
+  否则访问会被浏览器拒绝。
+- 如需移除，需通过 hstspreload.org 提交移除申请，且浏览器端
+  max-age 到期仍需时间，属长期且难逆转的变更。
+
+[文件变更]
+- 无（仅服务端配置核查 + 外部提交，未改任何本地服务端配置）
+============================================================
