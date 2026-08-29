@@ -809,3 +809,60 @@ HTTPS/SSL 已于 2026-08-24 配置完成并运行正常，无需重复操作。
 [文件变更]
 - 无（仅核查并确认，未改任何服务端配置）
 ============================================================
+
+============================================================
+[追加] GnuBoard5 上游自动更新机制
+============================================================
+时间: 2026-08-29T05:47:56Z UTC / 2026-08-29T13:47:56+0800 LOCAL
+
+[目标]
+官方 GnuBoard5 仓库（github.com/gnuboard/gnuboard5）发布新提交时，
+本地站点自动拉取、合并并推送回私有仓库，实现安全自动更新。
+
+[Git 远端结构]
+- origin  → https://github.com/gnuboard/gnuboard5.git（官方上游，只读拉取）
+- deploy  → git@github.com:qhwhro88/gnuboard5.git（私有仓库，SSH 推送）
+- 本地分支: main（跟踪 deploy/main）
+- 上游分支: origin/master
+
+[自动同步脚本]
+- 路径: /home/www/scripts/sync-upstream.sh（700 root，.gitignore 排除）
+- 触发: crontab 每日 05:00
+- 日志: /home/www/logs/cron-upstream-sync.log
+
+[执行流程]
+1. 工作区干净检查（有未提交改动则跳过，保护本地修改）
+2. git fetch origin（拉取官方仓库）
+3. 检测 origin/master 是否有领先于本地 main 的新提交
+4. 有新提交 → git merge 自动合并
+5. 修正被改动/新增文件属主为 www-data
+6. 健康检查（https://127.0.0.1/ Host: yiwupage.com 返回 200）
+7. 健康检查通过 → 自动 git push deploy main
+
+[安全机制]
+- 冲突: 自动 git merge --abort 回滚，站点保持合并前状态，
+  并生成 /home/www/reports/upstream-sync-conflict-*.txt 告警
+- 健康检查失败: 自动 git reset --hard 回滚到合并前提交
+- 推送失败: 仅 WARN，不影响站点（站点已完成合并）
+
+[Cron 任务总览（当前）]
+1. DB 每日备份        03:00  backup-db.sh
+2. Session/Cache 清理 04:00  cleanup-data.sh
+3. 上游自动同步       05:00  sync-upstream.sh
+4. Let's Encrypt 续期      系统 certbot.timer + /etc/cron.d/certbot
+
+[版本状态]
+- GnuBoard: 5.6.34 → 5.6.35（已通过上游同步合并 41 个提交）
+- YoungCart: 5.4.5.5.1（不开发商城，仅保留表结构供广告复用）
+
+[验证结果（隔离环境端到端，11 项断言全部通过）]
+- 场景一 无新上游提交: 直接结束，输出「无新上游提交」 ✓
+- 场景二 上游有新提交: 检测 → 合并 → 健康检查 → 自动推送 deploy/main ✓
+- 场景三 上游与本地冲突: 自动 abort + 生成告警报告 + 本地回滚 ✓
+- 健康检查端点: https://127.0.0.1/ (Host yiwupage.com) 返回 200 ✓
+
+[文件变更]
+- /home/www/scripts/sync-upstream.sh（新增，含自动推送逻辑）
+- crontab（新增 05:00 上游同步任务）
+- .gitignore（scripts/ 已忽略，运维脚本不入 GnuBoard5 源码库）
+============================================================
