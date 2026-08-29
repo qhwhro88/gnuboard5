@@ -184,6 +184,46 @@ box-shadow:0 2px 5px rgba(0,0,0,0.2)}
 #container_title {font-size:1.333em;margin:0 auto;font-weight:bold}
 #container_title span {margin:0 auto 10px;display:block;line-height:30px}
 
+/* 홈 3단 레이아웃 (guide79.net 참조) */
+#container_wr.home_layout { display:flex; align-items:flex-start; }
+#container_wr.home_layout #home_left { flex:0 0 200px; width:200px; margin:20px 20px 20px 0; }
+#container_wr.home_layout #container { flex:1 1 auto; float:none; width:auto; min-width:0; }
+#container_wr.home_layout #aside { flex:0 0 235px; width:235px; float:none; }
+
+/* 홈 좌측 내비게이션 */
+#home_left { background:#fff; border:1px solid #e5e5e5; border-radius:4px; overflow:hidden; }
+#home_left .home_left_box { border-bottom:1px solid #f0f0f0; }
+#home_left .home_left_box:last-child { border-bottom:0; }
+#home_left h3 { margin:0; padding:13px 15px 9px; font-size:1.05em; color:#333; }
+#home_left ul { margin:0; padding:4px 0 10px; list-style:none; }
+#home_left ul li a { display:block; padding:6px 18px; color:#555; font-size:0.95em; }
+#home_left ul li a:hover { color:#e74c3c; background:#fafafa; }
+
+/* 홈 히어로 */
+#home_hero { margin:20px 0; padding:46px 24px; text-align:center; border-radius:6px;
+    background:linear-gradient(135deg,#2c3e50,#4a6fa5); color:#fff; }
+#home_hero h2 { margin:0 0 10px; font-size:2em; color:#fff; }
+#home_hero .home_hero_sub { margin:0 0 12px; font-size:1.15em; color:#e8f0f8; }
+#home_hero .home_hero_desc { margin:0 0 22px; font-size:0.95em; color:#cfe0f0; line-height:1.6; }
+#home_hero .home_hero_btn a { display:inline-block; margin:0 5px; padding:11px 26px; border-radius:4px; font-weight:bold; }
+#home_hero .home_hero_btn .btn_primary { background:#e74c3c; color:#fff; }
+#home_hero .home_hero_btn .btn_second { background:#fff; color:#2c3e50; }
+
+/* 홈 우측 aside 박스 */
+#aside .aside_box { margin-top:20px; }
+#aside .aside_box h3 { margin:0 0 8px; padding:8px 12px; font-size:1em; background:#f6f6f6; border-left:3px solid #2c3e50; }
+#aside .aside_qlink { margin:0; padding:0; list-style:none; }
+#aside .aside_qlink li a { display:block; padding:7px 12px; color:#555; border-bottom:1px solid #f0f0f0; }
+#aside .aside_qlink li a:hover { color:#e74c3c; }
+
+/* 홈 3단 → 세로 배치 (좁은 화면) */
+@media (max-width: 991px) {
+    #container_wr.home_layout { flex-wrap:wrap; }
+    #container_wr.home_layout #home_left,
+    #container_wr.home_layout #container,
+    #container_wr.home_layout #aside { flex:1 1 100%; width:auto; margin:10px 0; }
+}
+
 .lt_wr {width:32%}
 .lt_wr:nth-child(3n+1) {clear:both}
 .latest_wr {margin-bottom:20px}

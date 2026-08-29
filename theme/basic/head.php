@@ -213,7 +213,38 @@ include_once(G5_LIB_PATH.'/popular.lib.php');
 
 <!-- 콘텐츠 시작 { -->
 <div id="wrapper">
-    <div id="container_wr">
+    <div id="container_wr"<?php if (defined('_INDEX_')) echo ' class="home_layout"'; ?>>
    
+    <?php if (defined('_INDEX_')) { ?>
+    <aside id="home_left">
+        <div class="home_left_box">
+            <h3>중국시장</h3>
+            <ul>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=futian1">푸텐시장 1기</a></li>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=futian2">푸텐시장 2기</a></li>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=futian3">푸텐시장 3기</a></li>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=futian4">푸텐시장 4기</a></li>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=futian5">푸텐시장 5기</a></li>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=futian6">푸텐시장 6기</a></li>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=huangyuan">황웬복장시장</a></li>
+            </ul>
+        </div>
+        <div class="home_left_box">
+            <h3>기업</h3>
+            <ul>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=promotion">기업홍보</a></li>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=stock">재고판매</a></li>
+            </ul>
+        </div>
+        <div class="home_left_box">
+            <h3>채용</h3>
+            <ul>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=job_offer">구인</a></li>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=job_seek">구직</a></li>
+                <li><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=talent">인재</a></li>
+            </ul>
+        </div>
+    </aside>
+    <?php } ?>
     <div id="container">
         <?php if (!defined("_INDEX_")) { ?><h2 id="container_title"><span title="<?php echo get_text($g5['title']); ?>"><?php echo get_head_title($g5['title']); ?></span></h2><?php }

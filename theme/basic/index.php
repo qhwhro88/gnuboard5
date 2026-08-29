@@ -15,6 +15,17 @@ if(G5_COMMUNITY_USE === false) {
 include_once(G5_THEME_PATH.'/head.php');
 ?>
 
+<!-- 홈 히어로(웰컴) -->
+<section id="home_hero">
+    <h2>이우페이지</h2>
+    <p class="home_hero_sub">중국 이우 시장 정보와 무역 커뮤니티</p>
+    <p class="home_hero_desc">푸텐시장·황웬복장시장 안내, 기업홍보, 재고판매,<br>구인·구직·인재 채용 정보를 제공합니다.</p>
+    <div class="home_hero_btn">
+        <a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=futian1" class="btn_primary">중국시장</a>
+        <a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=stock" class="btn_second">재고판매</a>
+    </div>
+</section>
+
 <?php
 // 커뮤니티 홈 상단 정적 배너 (최대 3개 병렬, 각 390×130)
 display_banner('커뮤니티', 'topbanner.skin.php');

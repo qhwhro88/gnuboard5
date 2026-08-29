@@ -14,8 +14,19 @@ if(G5_COMMUNITY_USE === false) {
 
     </div>
     <div id="aside">
-        <?php echo outlogin('theme/basic'); // 외부 로그인, 테마의 스킨을 사용하려면 스킨을 theme/basic 과 같이 지정 ?>
-        <?php echo poll('theme/basic'); // 설문조사, 테마의 스킨을 사용하려면 스킨을 theme/basic 과 같이 지정 ?>
+        <?php echo outlogin('theme/basic'); // 외부 로그인 ?>
+        <div class="aside_box">
+            <h3>공지사항</h3>
+            <?php echo latest('theme/basic', 'notice', 5, 20); ?>
+        </div>
+        <div class="aside_box">
+            <h3>바로가기</h3>
+            <ul class="aside_qlink">
+                <li><a href="<?php echo G5_BBS_URL ?>/faq.php">자주 묻는 질문(FAQ)</a></li>
+                <li><a href="<?php echo get_pretty_url('content', 'company'); ?>">회사소개</a></li>
+                <li><a href="<?php echo G5_BBS_URL ?>/qalist.php">1:1 문의</a></li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -37,12 +48,10 @@ if(G5_COMMUNITY_USE === false) {
         <div id="ft_company" class="ft_cnt">
         	<h2>사이트 정보</h2>
 	        <p class="ft_info">
-	        	회사명 : 회사명 / 대표 : 대표자명<br>
-				주소  : OO도 OO시 OO구 OO동 123-45<br>
-				사업자 등록번호  : 123-45-67890<br>
-				전화 :  02-123-4567  팩스  : 02-123-4568<br>
-				통신판매업신고번호 :  제 OO구 - 123호<br>
-				개인정보관리책임자 :  정보책임자명<br>
+	        	운영자 : 이우페이지 운영자<br>
+				이메일 : admin@yiwupage.com<br>
+				현재는 별도 법인(사업자) 등록이 이루어지지 않은 상태이며,<br>
+				추후 등록이 완료되면 사업자 정보를 공지합니다.<br>
 			</p>
 	    </div>
         <?php
@@ -56,7 +65,7 @@ if(G5_COMMUNITY_USE === false) {
 		<?php echo visit('theme/basic'); // 접속자집계, 테마의 스킨을 사용하려면 스킨을 theme/basic 과 같이 지정 ?>
 	</div>      
         <!-- <div id="ft_catch"><img src="<?php echo G5_IMG_URL; ?>/ft_logo.png" alt="<?php echo G5_VERSION ?>"></div> -->
-        <div id="ft_copy">Copyright &copy; <b>소유하신 도메인.</b> All rights reserved.</div>
+        <div id="ft_copy">Copyright &copy; <b><?php echo $config['cf_title']; ?>.</b> All rights reserved.</div>
     
     
     <button type="button" id="top_btn">
